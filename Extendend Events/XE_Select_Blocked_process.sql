@@ -1,5 +1,5 @@
 /*
-	Vytvorit XE na events "blocked_process_report"
+	Vytvorit XE na events "blocked_process_report" - https://msdn.microsoft.com/en-us/library/ms191168.aspx
 	
 	Treshold je nutne nastavit (defaultne je vypnut), cas je v sekundach. Vypnuti trasholdu nastavit zase na 0.
 
@@ -15,14 +15,59 @@
 */
 
 SELECT 
-	event_xml.value(N'(/event/@timestamp)[1]', N'datetime') AS [DateTime]
-	,DB_NAME(event_xml.value(N'(./data[@name="database_id"]/value)[1]', N'int')) AS [DatabaseName]
-	,event_xml.value(N'(event/action[@name="client_app_name"]/value)[1]', 'nvarchar(max)') AS [Client_app_name]
-	,event_xml.value(N'(event/action[@name="client_hostname"]/value)[1]', 'nvarchar(max)') AS [Client_Hostname]
-	,event_xml.value(N'(./data[@name="lock_mode"]/text)[1]', N'nvarchar') AS [LockMode]
-	,event_xml.value(N'(/event[@name="blocked_process_report"]/data[@name="duration"]/value)[1]','bigint') / 1000 /1000 AS [duration (s)]
-	,event_xml.query(N'(/event[@name="blocked_process_report"]/data[@name="blocked_process"]/value/blocked-process-report)[1]') AS [Blocked_process_report]
-	,event_xml.query(N'(event/data[@name="xml_report"]/value/deadlock)[1]') AS [Deadlock_graph]
+	DATEADD(hour,1,event_xml.value(N'(/event/@timestamp)[1]', N'datetime'))			AS [DateTime]
+	,CASE WHEN event_xml.value(N'(/event/data[@name="xml_report"]/value)[1]','nvarchar(max)') IS NOT NULL
+		THEN
+			'-'
+		ELSE
+			event_xml.value(N'(./data[@name="database_name"]/value)[1]', N'nvarchar(max)')
+	END AS [DatabaseName]
+
+	,CASE WHEN event_xml.value(N'(/event/data[@name="xml_report"]/value)[1]','nvarchar(max)') IS NOT NULL
+		THEN
+			'DEADLOCK'
+		ELSE
+			event_xml.value(N'(./data[@name="lock_mode"]/text)[1]', N'nvarchar')
+	END AS [LockMode]
+
+	,CASE WHEN event_xml.value(N'(/event/data[@name="xml_report"]/value)[1]','nvarchar(max)') IS NOT NULL
+		THEN
+			'1'
+		ELSE
+			CAST(event_xml.value(N'(/event/data[@name="duration"]/value)[1]','bigint')/1000000.0 AS decimal(6,2))														
+	END AS [Duration (s)]
+
+	,CASE WHEN event_xml.value(N'(/event/data[@name="xml_report"]/value)[1]','nvarchar(max)') IS NOT NULL
+		THEN
+			ISNULL(event_xml.value(N'(/event/data[@name="xml_report"]/value/deadlock/process-list/process/@hostname)[2]','nvarchar(max)'),'-') 
+			+ '\' + event_xml.value(N'(/event/data[@name="xml_report"]/value/deadlock/process-list/process/@loginname)[2]','nvarchar(max)')
+		ELSE
+			ISNULL(event_xml.value(N'(/event/data[@name="blocked_process"]/value/blocked-process-report/blocking-process/process/@hostname)[1]','nvarchar(max)'),'-')
+			+ '\' + event_xml.value(N'(/event/data[@name="blocked_process"]/value/blocked-process-report/blocking-process/process/@loginname)[1]','nvarchar(max)')		
+	END AS [Blocking]
+
+	,CASE WHEN event_xml.value(N'(/event/data[@name="xml_report"]/value)[1]','nvarchar(max)') IS NOT NULL
+		THEN
+			event_xml.value(N'(/event/data[@name="xml_report"]/value/deadlock/process-list/process/inputbuf)[1]','SYSNAME') 
+		ELSE
+			event_xml.value(N'(/event/data[@name="blocked_process"]/value/blocked-process-report/blocking-process/process/inputbuf)[1]','SYSNAME')						
+	END AS [Blocking Query]
+
+	,CASE WHEN event_xml.value(N'(/event/data[@name="xml_report"]/value)[1]','nvarchar(max)') IS NOT NULL
+		THEN
+			ISNULL(event_xml.value(N'(/event/data[@name="xml_report"]/value/deadlock/process-list/process/@hostname)[1]','nvarchar(max)'),'-') 
+			+ '\' + event_xml.value(N'(/event/data[@name="xml_report"]/value/deadlock/process-list/process/@loginname)[1]','nvarchar(max)')
+		ELSE
+			ISNULL(event_xml.value(N'(/event/data[@name="blocked_process"]/value/blocked-process-report/blocked-process/process/@hostname)[1]','nvarchar(max)'),'-')
+			+ '\' + event_xml.value(N'(/event/data[@name="blocked_process"]/value/blocked-process-report/blocked-process/process/@loginname)[1]','nvarchar(max)') 		
+	END AS [Blocked]
+
+	,CASE WHEN event_xml.value(N'(/event/data[@name="xml_report"]/value)[1]','nvarchar(max)') IS NOT NULL
+		THEN
+			event_xml.value(N'(/event/data[@name="xml_report"]/value/deadlock/process-list/process/inputbuf)[2]','SYSNAME') 
+		ELSE
+			event_xml.value(N'(/event/data[@name="blocked_process"]/value/blocked-process-report/blocked-process/process/inputbuf)[1]','SYSNAME')						
+	END AS [Blocked Query]
 	,XED AS [Raw_XML_Data]
 FROM
 	(SELECT CAST(event_data AS XML) AS XED FROM sys.fn_xe_file_target_read_file ('D:\AC\*.xel',NULL,NULL,NULL)) AS Event_Table
