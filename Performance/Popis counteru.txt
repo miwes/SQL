@@ -1,0 +1,71 @@
+Odkazy:
+http://www.sqlshack.com/sql-server-memory-performance-metrics-part-5-understanding-lazy-writes-free-list-stallssec-memory-grants-pending/
+
+# DISK
+########
+Avg. Disk sec/Read(Write) - prumerna latence v S (0,020 = 20ms)
+
+# MEMORY
+########
+Pages/sec - pocet stranek ktere cte za sekundu
+Page Faults/sec - pocet stranek, ktere nenasel v pameti a musi je precist z disku (Soft i hard)
+    To track paging, you should use the following counters: 
+    Memory\ Page Faults /sec, Memory\ Cache Faults /sec and Memory\ Page Reads /sec.  
+    The first two counters track the working sets and the file system cache.  
+    The Page Reads counter allows you to track hard page faults.  
+    If you have a high rate  of page faults combined with a high rate of page reads (which also show up in the Disk counters) then you may have an issue where you have insufficient RAM given the high rate of hard faults.
+    
+# SQL
+######
+Buffer cache hit ratio - 90-100% - Percent of page requests satisfied by data pages from the buffer pool
+    Ideally, SQL Server would read all pages from the buffer cache and there will be no need to read any from disk. 
+    In this case, the Buffer Cache Hit Ratio value would be 100. 
+    The recommended value for Buffer Cache Hit Ratio is over 90. 
+    When better performance is needed, the minimal acceptable value is 95. 
+    A lower value indicates a memory problem.
+
+Lazy writes/sec - <20 - Number of times per second SQL Server relocates dirty pages from buffer pool (memory) to disk
+    The lazy writer is a process that periodically checks the available free space in the buffer cache between two checkpoints and ensures that there is always enough free memory. 
+    When the lazy writer determines free pages are needed in the buffer for better performance, it removes the old pages before the regular checkpoint occurs    
+    If the Lazy Writes value is constantly higher than 20, to be sure that the server is under memory pressure, check Page Life Expectancy. 
+    If its value is low (below 300 seconds), this is a clear indication of memory pressure. 
+    Check the Free List Stalls/sec value as well. If above 2, consider adding memory to the server 
+    Ideally, Lazy Writes should be close to zero. That means that the buffer cache doesn’t have to free up dirty pages immediately, it can wait for the automatic check point
+
+Page life expectancy - <?300 - Duration, in seconds, that a page resides in the buffer pool
+    When there’s sufficient memory on the server, pages have a high life expectancy. 
+    The normal values are above 300 seconds (5 minutes) and the trend line should be stable. 
+    It’s recommended to monitor the values over time, as frequent quick drops indicate memory issues. 
+    Also, a value drop of more than 50% is a sign for deeper investigation
+    
+    PLE threshold = ((MAXBP(MB)/1024)/4)*300
+
+    Where MAXBP(MB) is the maximum amount of Buffer Pool memory (in MegaBytes) over the report run you're interested in. 
+    *You can use PerfMon to trace the maximum value of SQL Server:Buffer Manager:Database Pages over your reporting run.
+    Take that number of pages and convert to MB: (pages*8)/1024 then substitute that for ‘MAXBP(MB)’ in the above formula to get your minimum PLE.
+    
+Free List Stalls/sec - <2 - Indicates the number of requests per second that had to wait for a free page.
+    If there were no free pages in the buffer cache, a request is stalled and has to wait until a page in the buffer is freed
+    The recommended value is below 2. 
+    When the Free list stalls/sec value is higher than the recommended, check the Page Life Expectancy and Lazy Writes/sec values, as well. 
+    If the Page Life Expectancy value is below 300 seconds and Lazy Writes/sec above 2, it’s a clear sign of memory pressure
+    
+Memory Grants Pending - ideal 0 - Its value shows the total number of SQL Server processes that are waiting to be granted workspace in the memory
+    The recommended Memory Grants Pending value is zero, meaning no processes are waiting for the memory, as there’s enough memory so the processes are not queued. 
+    If the value is constantly above 0, try with increasing the Maximum Server Memory value
+    
+•	Buffer cache hit ration – měřítko efektivity buffer cache. 
+    Doporučená hodnota 90% až 100%
+•	Free list Stalls/sec – monitor počtu požadavků za sekundu, které čekají na volnou stránku. 
+    Doporučená hodnota < 2 
+•	Lazy writes/sec – Monitor počtu přenosu stránek z paměti na disk.
+    Doporučená hodnota < 20
+•	Page life expectancy – Průměrná doba (v sekundách), kdy stránka zůstává v paměti.
+    Doporučená hodnota < 300
+•	Memory Grants Pending –  Počet procesů SQL serveru, který čekají na přiřazení pracovního prostoru v paměti.
+    Doporučená hodnota 0
+•	Target Server Memory (KB) – Množství paměti, které může SQL server používat.
+•	Total Server Memory (KB) – Množství paměti, které SQL server aktuálně používá.
+    Pokud hodnota Total Server Memory větší nebo rovna Target Server Memory, SQL server může mít nedostatek paměti.
+•	Available MBytes – dostupná volná pamět v operačním systému.
+    Doporučená min. hodnota je více než 5% celkové velikost RAM.

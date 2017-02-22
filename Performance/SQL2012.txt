@@ -1,0 +1,49 @@
+# disk
+\\HOSTNAME\Paging File(_Total)\% Usage
+\\HOSTNAME\PhysicalDisk(* *)\Avg. Disk Queue Length 
+\\HOSTNAME\PhysicalDisk(* *)\Avg. Disk sec/Read 
+\\HOSTNAME\PhysicalDisk(* *)\Avg. Disk sec/Write 
+\\HOSTNAME\PhysicalDisk(* *)\Avg. Disk Bytes/Read
+\\HOSTNAME\PhysicalDisk(* *)\Avg. Disk Bytes/Write
+#cpu
+\\HOSTNAME\Processor(*)\% Processor Time 
+\\HOSTNAME\Processor(*)\% Privileged Time
+\\HOSTNAME\Process(sqlservr*)\% Processor Time
+\\HOSTNAME\Process(sqlservr*)\% Privileged Time
+\\HOSTNAME\Processor(*)\Interrupts/sec
+\\HOSTNAME\Processor(*)\% Interrupt Time
+\\HOSTNAME\Processor(*)\% Total Interrupt Time
+\\HOSTNAME\Processor(*)\% DPC Time
+#network
+\\HOSTNAME\Network Interface(*)\Bytes Received/sec
+\\HOSTNAME\Network Interface(*)\Bytes Sent/sec
+\\HOSTNAME\Network Interface(*)\Bytes Total/sec
+\\HOSTNAME\Network Interface(*)\Current Bandwidth
+# memory
+\\HOSTNAME\Memory\Available MBytes
+\\HOSTNAME\Memory\Pages/sec
+\\HOSTNAME\Memory\Page Faults/sec
+\\HOSTNAME\SQLServer:Buffer Node(*)\Database Pages
+\\HOSTNAME\SQLServer:Buffer Node(*)\Page life expectancy 
+\\HOSTNAME\SQLServer:Buffer Manager\Database Pages
+\\HOSTNAME\SQLServer:Buffer Manager\Buffer cache hit ratio
+\\HOSTNAME\SQLServer:Buffer Manager\Lazy writes/sec
+\\HOSTNAME\SQLServer:Buffer Manager\Page life expectancy 
+\\HOSTNAME\SQLServer:Buffer Manager\Free List Stalls/sec
+\\HOSTNAME\SQLServer:Buffer Manager\Free List Stalls/sec
+\\HOSTNAME\SQLServer:Memory Manager\Total Server Memory (KB)
+\\HOSTNAME\SQLServer:Memory Manager\Target Server Memory (KB)
+\\HOSTNAME\SQLServer:Memory Manager\Memory Grants Pending
+\\HOSTNAME\SQLServer:General Statistics\User Connections
+\\HOSTNAME\MSSQL$INSTANCE:Buffer Node(*)\Database Pages
+\\HOSTNAME\MSSQL$INSTANCE:Buffer Node(*)\Page life expectancy 
+\\HOSTNAME\MSSQL$INSTANCE:Buffer Manager\Database Pages
+\\HOSTNAME\MSSQL$INSTANCE:Buffer Manager\Buffer cache hit ratio
+\\HOSTNAME\MSSQL$INSTANCE:Buffer Manager\Lazy writes/sec
+\\HOSTNAME\MSSQL$INSTANCE:Buffer Manager\Page life expectancy 
+\\HOSTNAME\MSSQL$INSTANCE:Buffer Manager\Free List Stalls/sec
+\\HOSTNAME\MSSQL$INSTANCE:Buffer Manager\Free List Stalls/sec
+\\HOSTNAME\MSSQL$INSTANCE:Memory Manager\Total Server Memory (KB)
+\\HOSTNAME\MSSQL$INSTANCE:Memory Manager\Target Server Memory (KB)
+\\HOSTNAME\MSSQL$INSTANCE:Memory Manager\Memory Grants Pending
+\\HOSTNAME\MSSQL$INSTANCE:General Statistics\User Connections

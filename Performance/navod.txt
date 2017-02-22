@@ -1,0 +1,63 @@
+Sbirani performance counteru do SQL databaze
+--------------------------------------------
+
+1. Vytvoreni DB
+-------------------------------------------------------------------------------------------------------------------------
+
+CREATE DATABASE [PerfmonCollector] ON  PRIMARY
+( NAME = N'PerfmonCollector', FILENAME = N'C:\DATA\PerfmonCollector.mdf' , SIZE = 51200KB , FILEGROWTH = 10240KB )
+ LOG ON
+( NAME = N'PerfmonCollector_log', FILENAME = N'C:\DATA\PerfmonCollector_log.ldf' , SIZE = 1024KB , FILEGROWTH = 10%)
+GO
+
+2. Vytvoreni TXT souboru s countery pro sbirani databaze
+-------------------------------------------------------------------------------------------------------------------------
+V textovem souboru muze byt uvedeno vice serveru a counteru - pro uvedeni serveru se pouzije \\server\
+V pripade ze se jedna o pojmenovanou SQL instanci je nutne zmenit counteru
+
+Default instance
+\\sql01\SQLServer:Buffer Manager\Buffer cache hit ratio 
+
+Pojmenovana instance
+\\sql01\MSSQL$InstanceName:Buffer Manager\Buffer cache hit ratio 
+
+3. ODBC
+-------------------------------------------------------------------------------------------------------------------------
+Pro pripojeni je nutne vytvorit na sberacskem serveru ODBC, pouzit SQL driver bez verze (obecny). 
+V pruvodci vybrat spranou defaultni databazi !
+
+3.1 Prevod BLG do DB
+-------------------------------------------------------------------------------------------------------------------------
+Pokud jsou data jiz v BLG formátu je možné je převést na jiný pomocí commandu RELOG
+Prevod do DB:
+Prevede soubor vstupnisoubor.blg do DB (odbc acperf) kazdy 5 zaznam
+Relog -f SQL vstupnisoubor.blg -o SQL:ACPerf!PopoisImportuDat -t 5
+
+4. Spusteni sbirani dat
+-------------------------------------------------------------------------------------------------------------------------
+TYPEPERF -f SQL -cf C:\CounterCollect\Counters.txt -si 15 -o SQL:PerfmonSQL!data1 -sc 4
+
+-f  : vystupni format
+-cf : soubor s performance countery
+-si : interval samplu - 15 vterin
+-o  : ODBC pripojeni, !data1 je pojmenovani sberu dat
+-sc : Kolik samplu se ma sbirat, 4x15vterin = 1 minuta samplu po 4 samplech
+
+5. Vyhodnoceni dat
+-------------------------------------------------------------------------------------------------------------------------
+SELECT
+ MachineName,
+ CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime)) AS CounterDate,
+ CounterDetails.ObjectName as [ObjectName],
+ CounterDetails.InstanceName as [InstanceName],
+ CounterDetails.CounterName AS [CounterName],
+ AVG(CounterData.CounterValue) AS [CounterValue]
+FROM CounterData
+ INNER JOIN CounterDetails ON CounterData.CounterID = CounterDetails.CounterID
+ INNER JOIN DisplayToID ON CounterData.GUID = DisplayToID.GUID
+GROUP BY
+ MachineName,
+ CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime)),
+ CounterDetails.ObjectName,
+ CounterDetails.InstanceName,
+ CounterDetails.CounterName
