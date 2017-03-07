@@ -8,13 +8,13 @@ SELECT
 	,DES.login_name				AS [Blocked login name]
 	,MRSH2.text					AS [Bloced SQL text]
 	,'-------->'				AS [-------->]
+	,DES2.host_name				AS [Blocking hostname]
+	,DES2.login_name			AS [Blocking login name]
+	,MRSH.text					AS [Blocking SQL text]
 	,DER.blocking_session_id	AS [Blocking session ID]
 	,DEC.connect_time			AS [Blocking session start time]
 	,DEC.last_read				AS [Blocking last read]
 	,DEC.last_write				AS [Blocking last write]
-	,DES2.host_name				AS [Blocked hostname]
-	,DES2.login_name				AS [Blocked login name]
-	,MRSH.text					AS [Blocking SQL text]
 	,DER2.wait_type				AS [Blocking WAIT type]
 	,DER2.wait_time				AS [Blocking WAIT time]
 
@@ -26,3 +26,4 @@ CROSS APPLY sys.dm_exec_sql_text(DEC.most_recent_sql_handle) AS MRSH
 CROSS APPLY sys.dm_exec_sql_text(DER.sql_handle) AS MRSH2	
 LEFT JOIN sys.dm_exec_requests AS DER2		ON DER.blocking_session_id = DER2.session_id
 WHERE DER.blocking_session_id > 0
+ORDER BY DER.session_id
