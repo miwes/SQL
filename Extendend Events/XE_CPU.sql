@@ -1,4 +1,4 @@
-DECLARE @path_to_health_session nvarchar(1000) = 'C:\temp\winpcadb\*.xel'
+DECLARE @path_to_health_session nvarchar(1000) = 'C:\temp\*.xel'
 
 SELECT
      T.sdnodes.value('(event/@timestamp)[1]','datetime') as [timestamp],
