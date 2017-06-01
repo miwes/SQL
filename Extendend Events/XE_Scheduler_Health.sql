@@ -1,7 +1,7 @@
 DECLARE @path_to_health_session nvarchar(1000) = 'C:\temp\*.xel'
 
 SELECT
-    T.sdnodes.value('(event/@timestamp)[1]','datetime') as [timestamp],
+    DATEADD(hour,2,T.sdnodes.value('(event/@timestamp)[1]','datetime')) AS [DateTime],
     T.sdnodes.value('(/event/data/value/queryProcessing/@maxWorkers)[1]','bigint') as [Max Workers],
 	T.sdnodes.value('(/event/data/value/queryProcessing/@workersCreated)[1]','bigint') as [Workers Created],
 	T.sdnodes.value('(/event/data/value/queryProcessing/@workersIdle)[1]','bigint') as [Idle Workers],

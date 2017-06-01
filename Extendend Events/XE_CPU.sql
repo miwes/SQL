@@ -1,7 +1,7 @@
 DECLARE @path_to_health_session nvarchar(1000) = 'C:\temp\*.xel'
 
 SELECT
-     T.sdnodes.value('(event/@timestamp)[1]','datetime') as [timestamp],
+     DATEADD(hour,2,T.sdnodes.value('(event/@timestamp)[1]','datetime')) AS [DateTime],
      T.sdnodes.value('(event/data[@name="component"]/text)[1]', 'varchar(100)') as [component_name],
      T.sdnodes.value('(event/data[@name="state"]/text)[1]', 'varchar(100)') as [component_state],
      T.sdnodes.value('(event/data[@name="data"]/value/system[1]/@spinlockBackoffs)[1]', 'int') as [spinlockBackoffs],
