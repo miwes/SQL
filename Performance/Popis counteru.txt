@@ -16,7 +16,7 @@ Page Faults/sec - pocet stranek, ktere nenasel v pameti a musi je precist z disk
     If you have a high rate  of page faults combined with a high rate of page reads (which also show up in the Disk counters) then you may have an issue where you have insufficient RAM given the high rate of hard faults.
     
 # SQL
-######
+###### - https://sqlworkbooks.com/2017/06/top-5-misleading-sql-server-performance-counters/
 Buffer cache hit ratio - 90-100% - Percent of page requests satisfied by data pages from the buffer pool
     Ideally, SQL Server would read all pages from the buffer cache and there will be no need to read any from disk. 
     In this case, the Buffer Cache Hit Ratio value would be 100. 
