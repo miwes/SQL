@@ -7,6 +7,8 @@
 		- upraveno nastaveni MAXDOP
 		- opraveno nastaveni MAXDOP
 		- pridano zapnuti 'optimize for ad hoc workloads'
+	10.11.2017
+		- cost threshold
 */
 
 
@@ -106,6 +108,10 @@ EXEC sp_executesql @SQL, @ParamDef, @maxMemory = @maxMemory
 
 /* nastaveni komprese na backupu*/
 EXEC sp_configure 'backup compression default', 1 ;
+							      
+/* nastaveni cost threshold */
+EXEC sp_configure 'cost threshold for parallelism', 25 ;  
+
 
 RECONFIGURE;
 EXEC dbo.sp_configure 'show advanced options', 0;
