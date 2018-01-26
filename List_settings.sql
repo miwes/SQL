@@ -6,17 +6,18 @@ WHERE
 	OR NAME = 'min server memory (MB)'
 	OR NAME = 'max server memory (MB)'
 	OR NAME = 'optimize for ad hoc workloads'
+	OR NAME = 'cost threshold for parallelism'
     
-#total memory
+--total memory
 SELECT [Total_Physical_Memory_KB] FROM sys.dm_os_sys_memory;
 
-#pocet CPU
+--pocet CPU
 SELECT cpu_count FROM sys.dm_os_sys_info;
 
-#verze SQL
+--verze SQL
 Select @@version;
 
-#tempdb settings
+--tempdb settings
 SELECT
 	name AS FileName,
 	size*1.0/128 AS FileSizeinMB,
