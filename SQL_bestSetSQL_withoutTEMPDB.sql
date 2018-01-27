@@ -3,7 +3,6 @@
 
 	Michal Weis 2016
 	V1.3.2
-		- pridana definice @tempDBSize
 		- upraveno nastaveni MAXDOP
 		- opraveno nastaveni MAXDOP
 		- pridano zapnuti 'optimize for ad hoc workloads'
