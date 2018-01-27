@@ -80,7 +80,7 @@ EXEC sp_executesql @SQL, @ParamDef, @maxMemory = @maxMemory
 EXEC sp_configure 'backup compression default', 1 ;
 							      
 /* nastaveni cost threshold */
-EXEC sp_configure 'cost threshold for parallelism', 25 ;  
+EXEC sp_configure 'cost threshold for parallelism', 50 ;  
 
 RECONFIGURE;
 EXEC dbo.sp_configure 'show advanced options', 0;
