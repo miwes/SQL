@@ -43,6 +43,7 @@ Page life expectancy - <?300 - Duration, in seconds, that a page resides in the 
     Where MAXBP(MB) is the maximum amount of Buffer Pool memory (in MegaBytes) over the report run you're interested in. 
     *You can use PerfMon to trace the maximum value of SQL Server:Buffer Manager:Database Pages over your reporting run.
     Take that number of pages and convert to MB: (pages*8)/1024 then substitute that for ‘MAXBP(MB)’ in the above formula to get your minimum PLE.
+    http://blog.sqlxdetails.com/page-life-expectancy-and-300-sec-limit/
     
 Free List Stalls/sec - <2 - Indicates the number of requests per second that had to wait for a free page.
     If there were no free pages in the buffer cache, a request is stalled and has to wait until a page in the buffer is freed
