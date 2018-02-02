@@ -1,13 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2010/01/reportdefinition">
+<Report xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner">
   <AutoRefresh>0</AutoRefresh>
   <DataSources>
     <DataSource Name="PASVSCOM2012">
-      <ConnectionProperties>
-        <DataProvider>SQL</DataProvider>
-        <ConnectString>Data Source=WINTCAREP2\DWH;Initial Catalog=ACPerfmonCollector</ConnectString>
-        <IntegratedSecurity>true</IntegratedSecurity>
-      </ConnectionProperties>
+      <DataSourceReference>/DataSources/SQL2016</DataSourceReference>
       <rd:SecurityType>Integrated</rd:SecurityType>
       <rd:DataSourceID>416828e8-283b-44d6-b8b1-c3089cf3206e</rd:DataSourceID>
     </DataSource>
@@ -301,6 +297,14 @@ MachineName IN (@Machine)</CommandText>
                                   <Value>=Fields!ObjectName.Value</Value>
                                 </SortExpression>
                               </SortExpressions>
+                              <ChartMembers>
+                                <ChartMember>
+                                  <Label>Counter Value</Label>
+                                </ChartMember>
+                                <ChartMember>
+                                  <Label />
+                                </ChartMember>
+                              </ChartMembers>
                               <Label>=Fields!ObjectName.Value</Label>
                             </ChartMember>
                           </ChartMembers>
@@ -325,11 +329,7 @@ MachineName IN (@Machine)</CommandText>
                       <ChartDataLabel>
                         <Style />
                       </ChartDataLabel>
-                      <Style>
-                        <Border>
-                          <Width>1.5pt</Width>
-                        </Border>
-                      </Style>
+                      <Style />
                       <ChartMarker>
                         <Style />
                       </ChartMarker>
@@ -354,6 +354,54 @@ MachineName IN (@Machine)</CommandText>
                     <MinMovingDistance>0pt</MinMovingDistance>
                   </ChartSmartLabel>
                 </ChartSeries>
+                <ChartSeries Name="Series">
+                  <ChartDataPoints>
+                    <ChartDataPoint>
+                      <ChartDataPointValues>
+                        <Y>=Parameters!Warning.Value</Y>
+                      </ChartDataPointValues>
+                      <ChartDataLabel>
+                        <Style />
+                        <UseValueAsLabel>true</UseValueAsLabel>
+                      </ChartDataLabel>
+                      <Style>
+                        <Border>
+                          <Color>Red</Color>
+                          <Style>Dotted</Style>
+                          <Width>1.5pt</Width>
+                        </Border>
+                        <Color>Red</Color>
+                        <BackgroundGradientType>None</BackgroundGradientType>
+                        <BackgroundGradientEndColor>#00ffffff</BackgroundGradientEndColor>
+                        <BackgroundHatchType>None</BackgroundHatchType>
+                      </Style>
+                      <ChartMarker>
+                        <Style />
+                      </ChartMarker>
+                      <DataElementOutput>Output</DataElementOutput>
+                    </ChartDataPoint>
+                  </ChartDataPoints>
+                  <Type>Line</Type>
+                  <Style />
+                  <ChartEmptyPoints>
+                    <Style />
+                    <ChartMarker>
+                      <Style />
+                    </ChartMarker>
+                    <ChartDataLabel>
+                      <Style />
+                    </ChartDataLabel>
+                  </ChartEmptyPoints>
+                  <ChartItemInLegend>
+                    <Hidden>true</Hidden>
+                  </ChartItemInLegend>
+                  <ValueAxisName>Primary</ValueAxisName>
+                  <CategoryAxisName>Primary</CategoryAxisName>
+                  <ChartSmartLabel>
+                    <CalloutLineColor>Black</CalloutLineColor>
+                    <MinMovingDistance>0pt</MinMovingDistance>
+                  </ChartSmartLabel>
+                </ChartSeries>
               </ChartSeriesCollection>
             </ChartData>
             <ChartAreas>
@@ -362,7 +410,7 @@ MachineName IN (@Machine)</CommandText>
                   <ChartAxis Name="Primary">
                     <Style>
                       <FontSize>8pt</FontSize>
-                      <Format>t</Format>
+                      <Format>dd. MM. yyyy H:mm:ss</Format>
                     </Style>
                     <ChartAxisTitle>
                       <Caption />
@@ -468,6 +516,7 @@ MachineName IN (@Machine)</CommandText>
                     <Minimum>NaN</Minimum>
                     <Maximum>NaN</Maximum>
                     <ChartAxisScaleBreak>
+                      <Enabled>true</Enabled>
                       <Style />
                     </ChartAxisScaleBreak>
                   </ChartAxis>
@@ -1336,8 +1385,67 @@ MachineName IN (@Machine)</CommandText>
       </DefaultValue>
       <Prompt>Posledni datum</Prompt>
     </ReportParameter>
+    <ReportParameter Name="Warning">
+      <DataType>Float</DataType>
+      <Nullable>true</Nullable>
+      <Prompt>Warning line</Prompt>
+    </ReportParameter>
   </ReportParameters>
-  <Language>en-US</Language>
+  <ReportParametersLayout>
+    <GridLayoutDefinition>
+      <NumberOfColumns>2</NumberOfColumns>
+      <NumberOfRows>5</NumberOfRows>
+      <CellDefinitions>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>Machine</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>0</RowIndex>
+          <ParameterName>CounterName</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>1</RowIndex>
+          <ParameterName>Instance</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>1</RowIndex>
+          <ParameterName>ObjectName</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>2</RowIndex>
+          <ParameterName>Interval</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>2</RowIndex>
+          <ParameterName>Od</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>3</RowIndex>
+          <ParameterName>Do</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>1</ColumnIndex>
+          <RowIndex>3</RowIndex>
+          <ParameterName>LastDo</ParameterName>
+        </CellDefinition>
+        <CellDefinition>
+          <ColumnIndex>0</ColumnIndex>
+          <RowIndex>4</RowIndex>
+          <ParameterName>Warning</ParameterName>
+        </CellDefinition>
+      </CellDefinitions>
+    </GridLayoutDefinition>
+  </ReportParametersLayout>
+  <Language>cs-CZ</Language>
   <rd:ReportUnitType>Inch</rd:ReportUnitType>
+  <rd:ReportServerUrl>http://sql01/reportserver_sql2016</rd:ReportServerUrl>
   <rd:ReportID>3d3a71bb-9ced-41bc-8255-1386f2b6d47c</rd:ReportID>
 </Report>
