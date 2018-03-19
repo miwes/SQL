@@ -1,5 +1,67 @@
+SELECT
+	'Instance name' as [name]
+	,@@servername as [nastaveni]
+
+UNION ALL
+
 SELECT 
-	*
+	'TCP port'  as [name]
+	,local_tcp_port  as [nastaveni]
+FROM   sys.dm_exec_connections
+WHERE  session_id = @@SPID
+
+UNION ALL
+
+SELECT 
+	'Microsoft SQL version' as [name]
+	,@@version as [nastaveni]
+
+UNION ALL
+
+SELECT
+	'Default path DB' as [name]
+	,SERVERPROPERTY('InstanceDefaultDataPath') AS [nastaveni]
+
+UNION ALL
+
+SELECT
+	'Default path LOG' as [name]
+	,SERVERPROPERTY('InstanceDefaultLogPath') AS [nastaveni]
+
+UNION ALL
+
+SELECT 
+	'SYSADMINS' as [name],
+	CONVERT(NVARCHAR(4000),(
+		SELECT p.name + ', ' 
+		FROM sys.server_principals p
+			JOIN sys.syslogins s ON p.sid = s.sid
+		WHERE p.type_desc IN ('SQL_LOGIN', 'WINDOWS_LOGIN', 'WINDOWS_GROUP')
+		AND p.name NOT LIKE '##%'
+		AND s.sysadmin = 1
+		AND is_disabled = 0
+		FOR XML PATH(''))) AS [Value]
+
+UNION ALL
+
+SELECT 
+	'Default collaction' as [name]
+     ,collation_name  as [value]
+FROM 
+    sys.databases
+WHERE database_id = DB_ID()
+
+UNION ALL
+
+SELECT 
+	'---- SQL settings ----' as [name]
+	,'-----------------------------------------------------------------------------' as [value]
+UNION ALL
+
+SELECT 
+	name
+	,value_in_use as [nastaveni]
+
 FROM sys.configurations
 WHERE 
 	NAME = 'max degree of parallelism'
@@ -7,32 +69,3 @@ WHERE
 	OR NAME = 'max server memory (MB)'
 	OR NAME = 'optimize for ad hoc workloads'
 	OR NAME = 'cost threshold for parallelism'
-    
---total memory
-SELECT [Total_Physical_Memory_KB] FROM sys.dm_os_sys_memory;
-
---pocet CPU
-SELECT cpu_count FROM sys.dm_os_sys_info;
-
---verze SQL
-Select @@version;
-
---tempdb settings
-SELECT
-	name AS FileName,
-	size*1.0/128 AS FileSizeinMB,
-	CASE max_size
-	WHEN 0 THEN 'Autogrowth is off.'
-	WHEN -1 THEN 'Autogrowth is on.'
-	ELSE 'Log file will grow to a maximum size of 2 TB.'
-	END AutogrowthStatus,
-	growth AS 'GrowthValue',
-	'GrowthIncrement' =
-	CASE
-		WHEN growth = 0 THEN 'Size is fixed and will not grow.'
-		WHEN growth > 0
-		AND is_percent_growth = 0
-		THEN 'Growth value is in 8-KB pages.'
-		ELSE 'Growth value is a percentage.'
-	END
-FROM tempdb.sys.database_files;
