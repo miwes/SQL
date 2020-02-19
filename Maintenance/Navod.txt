@@ -1,0 +1,35 @@
+https://github.com/olahallengren/sql-server-maintenance-solution
+
+1. Zalozit databazi AC_Maintenance
+2. Spustit skripty
+	- CommandExecute.sql
+	- CommandLog.sql
+	- IndexOptimize.sql
+	- DatabaseIntegrityCheck.sql
+3. Vytvorit SQL Agent job - AC Maintenance job
+	
+	DatabaseIntegrityCheck - USER_DATABASES
+	
+	EXECUTE [dbo].[DatabaseIntegrityCheck]
+	@Databases = 'USER_DATABASES',
+	@LogToTable = 'Y'
+	
+	IndexOptimize, UpdateStatistics - USER_DATABASES
+	
+	EXECUTE dbo.IndexOptimize
+	@Databases = 'USER_DATABASES',
+	@FragmentationLow = NULL,
+	@FragmentationMedium = 'INDEX_REORGANIZE,INDEX_REBUILD_ONLINE,INDEX_REBUILD_OFFLINE',
+	@FragmentationHigh = 'INDEX_REBUILD_ONLINE,INDEX_REBUILD_OFFLINE',
+	@FragmentationLevel1 = 5,
+	@FragmentationLevel2 = 30,
+	@UpdateStatistics = 'ALL',
+	@OnlyModifiedStatistics = 'Y',
+	@LogToTable = 'Y'
+	
+	CommandLog Cleanup
+	
+	DELETE FROM [dbo].[CommandLog]
+	WHERE StartTime < DATEADD(dd,-30,GETDATE())
+	
+Naplanovat spusteni 1x tydnne

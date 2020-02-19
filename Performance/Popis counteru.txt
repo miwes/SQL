@@ -1,12 +1,14 @@
 Odkazy:
 http://www.sqlshack.com/sql-server-memory-performance-metrics-part-5-understanding-lazy-writes-free-list-stallssec-memory-grants-pending/
 
+#########
 # DISK
-########
+#########
 Avg. Disk sec/Read(Write) - prumerna latence v S (0,020 = 20ms)
 
+#########
 # MEMORY
-########
+#########
 Pages/sec - pocet stranek ktere cte za sekundu
 Page Faults/sec - pocet stranek, ktere nenasel v pameti a musi je precist z disku (Soft i hard)
     To track paging, you should use the following counters: 
@@ -15,8 +17,9 @@ Page Faults/sec - pocet stranek, ktere nenasel v pameti a musi je precist z disk
     The Page Reads counter allows you to track hard page faults.  
     If you have a high rate  of page faults combined with a high rate of page reads (which also show up in the Disk counters) then you may have an issue where you have insufficient RAM given the high rate of hard faults.
     
+########
 # SQL
-###### - https://sqlworkbooks.com/2017/06/top-5-misleading-sql-server-performance-counters/
+######## - https://sqlworkbooks.com/2017/06/top-5-misleading-sql-server-performance-counters/
 Buffer cache hit ratio - 90-100% - Percent of page requests satisfied by data pages from the buffer pool
     Ideally, SQL Server would read all pages from the buffer cache and there will be no need to read any from disk. 
     In this case, the Buffer Cache Hit Ratio value would be 100. 
@@ -55,18 +58,32 @@ Memory Grants Pending - ideal 0 - Its value shows the total number of SQL Server
     The recommended Memory Grants Pending value is zero, meaning no processes are waiting for the memory, as there’s enough memory so the processes are not queued. 
     If the value is constantly above 0, try with increasing the Maximum Server Memory value
     
-•	Buffer cache hit ration – měřítko efektivity buffer cache. 
+Buffer cache hit ration – měřítko efektivity buffer cache. 
     Doporučená hodnota 90% až 100%
-•	Free list Stalls/sec – monitor počtu požadavků za sekundu, které čekají na volnou stránku. 
+
+Free list Stalls/sec – monitor počtu požadavků za sekundu, které čekají na volnou stránku. 
     Doporučená hodnota < 2 
-•	Lazy writes/sec – Monitor počtu přenosu stránek z paměti na disk.
+
+Lazy writes/sec – Monitor počtu přenosu stránek z paměti na disk.
     Doporučená hodnota < 20
-•	Page life expectancy – Průměrná doba (v sekundách), kdy stránka zůstává v paměti.
+
+Page life expectancy – Průměrná doba (v sekundách), kdy stránka zůstává v paměti.
     Doporučená hodnota < 300
-•	Memory Grants Pending –  Počet procesů SQL serveru, který čekají na přiřazení pracovního prostoru v paměti.
+
+Memory Grants Pending –  Počet procesů SQL serveru, který čekají na přiřazení pracovního prostoru v paměti.
     Doporučená hodnota 0
-•	Target Server Memory (KB) – Množství paměti, které může SQL server používat.
-•	Total Server Memory (KB) – Množství paměti, které SQL server aktuálně používá.
+
+Target Server Memory (KB) – Množství paměti, které může SQL server používat.
+
+Total Server Memory (KB) – Množství paměti, které SQL server aktuálně používá.
     Pokud hodnota Total Server Memory větší nebo rovna Target Server Memory, SQL server může mít nedostatek paměti.
-•	Available MBytes – dostupná volná pamět v operačním systému.
+
+Available MBytes – dostupná volná pamět v operačním systému.
     Doporučená min. hodnota je více než 5% celkové velikost RAM.
+
+########
+#SQL Access Method
+########
+
+Page Splits/sec - Page Splits/sec also helps you understand how fragmented your tables are.
+Forwarded Records/sec - Forwarded Records/sec helps you understand how fragmented your heaps are. A heap is a SQL Server table without a clustered index, and SQL Server uses Row IDs to find the data it's looking for.
