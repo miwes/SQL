@@ -31,7 +31,7 @@ EXEC dbo.sp_configure 'show advanced options', 1;
 RECONFIGURE;
 
 /* zapnuti optimalizace pro ADHOC query */
-EXEC sp_configure 'optimize for ad hoc workloads', 1
+/* EXEC sp_configure 'optimize for ad hoc workloads', 1 */
 
 /* maxdop dle poctu CPU - dle kb https://support.microsoft.com/cs-cz/kb/2806535 */
 SELECT @NoOfNUMA = COUNT(*) FROM sys.dm_os_memory_nodes WHERE memory_node_id < 64
