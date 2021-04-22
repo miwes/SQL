@@ -13,10 +13,10 @@
 Param
 (
         [Parameter(Mandatory= $False,ValueFromPipeline= $True)] 
-        [string]$SQLServer = "WINDCADB"
+        [string]$SQLServer = ''
        
         ,[Parameter(Mandatory= $False,ValueFromPipeline= $True)]
-        [string]$DBName = 'MDB'
+        [string]$DBName = ''
 
         ,[Parameter(Mandatory= $False,ValueFromPipeline= $True)]
         [string]$ExportFile = 'data.csv'
