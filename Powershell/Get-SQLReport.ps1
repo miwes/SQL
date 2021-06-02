@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS 
-    Export-SQLtoCSV
+    Report SQL
 .DESCRIPTION 
 .NOTES 
     Author      : Michal Weis
@@ -13,16 +13,10 @@
 Param
 (
         [Parameter(Mandatory= $False,ValueFromPipeline= $True)] 
-        [string]$SQLServer = ''
+        [string]$SQLServer = 'localhost'
        
-        ,[Parameter(Mandatory= $False,ValueFromPipeline= $True)]
-        [string]$DBName = ''
-
-        ,[Parameter(Mandatory= $False,ValueFromPipeline= $True)]
-        [string]$ExportFile = 'data.csv'
-
         ,[Parameter(Mandatory= $True,ValueFromPipeline= $True)]
-        [string]$SQLQuery
+        [string]$DBName = 'GITEA'
 )
 
 Set-StrictMode -Version latest
@@ -108,6 +102,21 @@ If ($SQLConnection -eq -1) {
 
 Try {
     Write-Verbose 'Run query'
+    $SQLQuery = "
+        SELECT 
+            '$DBName'
+            , Name
+            , physical_name
+            , CASE WHEN Type  = 0 THEN 'DATA' ELSE 'LOG' END AS TYPE
+            , CAST(CAST(Round(CAST(size as decimal) * 8.0/1024.0,2) as decimal(18,2)) as nvarchar) AS Size
+			, CAST(
+				(
+					(CAST(Round(CAST(size as decimal) * 8.0/1024.0,2) as decimal(18,2)) - CAST(FILEPROPERTY(name, 'SpaceUsed') * 8.0/1024.0 as decimal(18,2))
+				) * 100) / (Round(CAST(size as decimal) * 8.0/1024.0,2))
+			   as decimal(18,2)) AS FreeSpacePercent
+        FROM sys.database_files
+    "
+
     $Result = Get-SQLQuery -SQLConnection $SQLConnection -SQLQuery $SQLQuery
     Close-SQLConnection -SQLConnection $SQLConnection
     If ($Result -eq -1) {
@@ -119,6 +128,17 @@ Try {
     Write-Warning "Error in invoke-SQLCMD : $Error[0]"
     Exit
 }
-Write-Verbose "Convert data to CSV > $ExportFile"
-$Result | ConvertTo-Csv -NoTypeInformation -Delimiter ";" | % {$_ -replace '"', ""} | Out-File ($ExportFile) -Force -Encoding UTF8 
+
+$xmlData = ''
+
+ForEach ($row in $result) {
+    # format XML
+    $xmlData += '<result>'
+    $xmlData += '<channel>' + $row.Name + '_' + $row.physical_name + '</channel>'
+    $xmlData += '<value>' + $row.FreeSpacePercent + '</value>'
+    $xmlData += '</result>'
+}
+
+Write-Host $xmlData
+
 Write-Verbose "End $(Get-Date)"
