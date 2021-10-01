@@ -1,3 +1,6 @@
+# show disk allocation unit - fsutil fsinfo ntfsinfo d:
+#
+
 SELECT
 	'Instance name' as [name]
 	,@@servername as [nastaveni]
