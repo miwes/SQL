@@ -1,5 +1,5 @@
 # show disk allocation unit - fsutil fsinfo ntfsinfo d:
-#
+#		 Bytes Per Cluster = allocation unit
 
 SELECT
 	'Instance name' as [name]
