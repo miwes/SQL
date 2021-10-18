@@ -4,8 +4,7 @@
 .DESCRIPTION 
 .NOTES 
     Author      : Michal Weis
-    Version     : 1.0
-
+    Version     : 1.1
 #>
 
 
@@ -103,21 +102,33 @@ If ($SQLConnection -eq -1) {
 Try {
     Write-Verbose 'Run query'
     $SQLQuery = "
-        SELECT 
-            '$DBName'
-            , Name
-            , physical_name
-            , CASE WHEN Type  = 0 THEN 'DATA' ELSE 'LOG' END AS TYPE
-            , CAST(CAST(Round(CAST(size as decimal) * 8.0/1024.0,2) as decimal(18,2)) as nvarchar) AS Size
-			, CAST(
-				(
-					(CAST(Round(CAST(size as decimal) * 8.0/1024.0,2) as decimal(18,2)) - CAST(FILEPROPERTY(name, 'SpaceUsed') * 8.0/1024.0 as decimal(18,2))
-				) * 100) / (Round(CAST(size as decimal) * 8.0/1024.0,2))
-			   as decimal(18,2)) AS FreeSpacePercent
-        FROM sys.database_files
-    "
+        BEGIN TRY
+            DECLARE @db_ID AS INT
 
+            SELECT
+	            @db_ID = database_id
+            FROM sys.databases
+            WHERE name = 'master'
+
+            SELECT 
+	            '$DBName' as Name
+	            , CASE WHEN Type  = 0 THEN 'DATA' ELSE 'LOG' END AS TYPE
+	            , CAST(CAST(Round(CAST(size as decimal) * 8.0/1024.0,2) as decimal(18,2)) as nvarchar) AS Size
+	            , CAST(
+	                (
+		                (CAST(Round(CAST(size as decimal) * 8.0/1024.0,2) as decimal(18,2)) - CAST(FILEPROPERTY(name, 'SpaceUsed') * 8.0/1024.0 as decimal(18,2))
+	                ) * 100) / (Round(CAST(size as decimal) * 8.0/1024.0,2))
+	                as decimal(18,2)) AS FreeSpacePercent
+	            , physical_name
+            FROM sys.master_files
+            WHERE database_id = @db_ID
+        END TRY
+        BEGIN CATCH
+            SELECT -1
+        END CATCH
+    "
     $Result = Get-SQLQuery -SQLConnection $SQLConnection -SQLQuery $SQLQuery
+
     Close-SQLConnection -SQLConnection $SQLConnection
     If ($Result -eq -1) {
         Write-Verbose "End $(Get-Date)"
