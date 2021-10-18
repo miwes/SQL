@@ -33,7 +33,7 @@ Function New-SQLConnection {
 	)
 
    Try {
-        $ConnectionString = "Data Source=$SQLServer;Integrated Security=SSPI;Initial Catalog=$DBName"
+        $ConnectionString = "Data Source=$SQLServer;Integrated Security=SSPI"
         $Connection = New-Object System.Data.SqlClient.SQLConnection($ConnectionString)
         $Connection.Open()
         
