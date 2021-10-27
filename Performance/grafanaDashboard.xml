@@ -1,0 +1,268 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 1,
+  "iteration": 1635340213117,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 23,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.2.2",
+      "targets": [
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "USE PerfmonCollector\n\nSELECT\n  MachineName\n ,ISNULL(CounterDetails.InstanceName,'-') AS Instance\n ,CounterName AS Counter\n ,CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime)) as \"time\"\n ,AVG(CounterData.CounterValue) AS 'metric'\n\nFROM CounterData\n INNER JOIN CounterDetails ON CounterData.CounterID = CounterDetails.CounterID\n INNER JOIN DisplayToID ON CounterData.GUID = DisplayToID.GUID\n\nWHERE\n CounterName IN ($Counters)\n AND MachineName IN ($Machines)\n AND ISNULL(CounterDetails.InstanceName,'-') IN ($Instance)\n\nGROUP BY MachineName,ISNULL(CounterDetails.InstanceName,'-'),CounterName,CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))\n\nORDER BY CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))\n \n\n\n\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Metriky",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 23,
+        "x": 0,
+        "y": 10
+      },
+      "id": 6,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "MachineName"
+          }
+        ]
+      },
+      "pluginVersion": "8.2.2",
+      "targets": [
+        {
+          "alias": "",
+          "format": "table",
+          "rawSql": "USE PerfmonCollector\n\nSELECT\n  MachineName\n ,ISNULL(CounterDetails.InstanceName,'-')\n ,CounterName\n ,AVG(CounterData.CounterValue) AS 'avg'\n ,MAX(CounterData.CounterValue) AS 'max'\n\nFROM CounterData\n INNER JOIN CounterDetails ON CounterData.CounterID = CounterDetails.CounterID\n INNER JOIN DisplayToID ON CounterData.GUID = DisplayToID.GUID\n\nWHERE\n CounterName IN ($Counters)\n AND MachineName IN ($Machines)\n AND ISNULL(CounterDetails.InstanceName,'-') IN ($Instance)\n AND (\n  DATEDIFF(s, '1970-01-01 00:00:00',CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))) >= $__unixEpochFrom()\n  AND\n  DATEDIFF(s, '1970-01-01 00:00:00',CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))) <= $__unixEpochTo() \n )\n\nGROUP BY MachineName,InstanceName,CounterName\n\n\n \n\n\n\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Table view",
+      "type": "table"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 31,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "% Processor Time"
+          ],
+          "value": [
+            "% Processor Time"
+          ]
+        },
+        "datasource": null,
+        "definition": "SELECT DISTINCT\n      [CounterName]\n\n  FROM [PerfmonCollector].[dbo].[CounterDetails]",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": true,
+        "name": "Counters",
+        "options": [],
+        "query": "SELECT DISTINCT\n      [CounterName]\n\n  FROM [PerfmonCollector].[dbo].[CounterDetails]",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "\\\\KSGSQL"
+          ],
+          "value": [
+            "\\\\KSGSQL"
+          ]
+        },
+        "datasource": null,
+        "definition": "SELECT DISTINCT\n      [MachineName]\n\n  FROM [PerfmonCollector].[dbo].[CounterDetails]",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": true,
+        "name": "Machines",
+        "options": [],
+        "query": "SELECT DISTINCT\n      [MachineName]\n\n  FROM [PerfmonCollector].[dbo].[CounterDetails]",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": [
+            "-",
+            "_Total"
+          ],
+          "value": [
+            "-",
+            "_Total"
+          ]
+        },
+        "datasource": null,
+        "definition": "SELECT \n    DISTINCT\n      [InstanceName]\n\nFROM [PerfmonCollector].[dbo].[CounterDetails]\nWHERE \nCounterName IN ($Counters)\nAND \nMachineName In ($Machines)\nUNION\nSELECT '-'",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": true,
+        "name": "Instance",
+        "options": [],
+        "query": "SELECT \n    DISTINCT\n      [InstanceName]\n\nFROM [PerfmonCollector].[dbo].[CounterDetails]\nWHERE \nCounterName IN ($Counters)\nAND \nMachineName In ($Machines)\nUNION\nSELECT '-'",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "2021-10-27T09:30:48.000Z",
+    "to": "2021-10-27T11:00:10.000Z"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Performance DB",
+  "uid": "nFlqpWK7z",
+  "version": 20
+}
