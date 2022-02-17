@@ -20,15 +20,13 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1635340213117,
+  "iteration": 1645114311759,
   "links": [],
   "liveNow": false,
   "panels": [
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -55,7 +53,7 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -86,6 +84,7 @@
         "y": 0
       },
       "id": 4,
+      "interval": "1m",
       "options": {
         "legend": {
           "calcs": [],
@@ -100,17 +99,21 @@
       "targets": [
         {
           "alias": "",
+          "datasource": {
+            "type": "mssql",
+            "uid": "YT59LVBnk"
+          },
           "format": "time_series",
-          "rawSql": "USE PerfmonCollector\n\nSELECT\n  MachineName\n ,ISNULL(CounterDetails.InstanceName,'-') AS Instance\n ,CounterName AS Counter\n ,CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime)) as \"time\"\n ,AVG(CounterData.CounterValue) AS 'metric'\n\nFROM CounterData\n INNER JOIN CounterDetails ON CounterData.CounterID = CounterDetails.CounterID\n INNER JOIN DisplayToID ON CounterData.GUID = DisplayToID.GUID\n\nWHERE\n CounterName IN ($Counters)\n AND MachineName IN ($Machines)\n AND ISNULL(CounterDetails.InstanceName,'-') IN ($Instance)\n\nGROUP BY MachineName,ISNULL(CounterDetails.InstanceName,'-'),CounterName,CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))\n\nORDER BY CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))\n \n\n\n\n",
+          "rawSql": "USE perf\n\nSELECT\n  MachineName\n ,ISNULL(CounterDetails.InstanceName,'-') AS Instance\n ,CounterName AS Counter\n ,CONVERT(DATETIME,ROUND(CAST(CAST(CONVERT(VARCHAR,CONVERT(VARCHAR(19), CounterDateTime),121) AS DATETIME) AS FLOAT) * (1440/($__interval_ms/60000)),0)/(1440/($__interval_ms/60000))) as \"time\"\n ,AVG(CounterData.CounterValue) AS 'metric'\n\nFROM CounterData\n INNER JOIN CounterDetails ON CounterData.CounterID = CounterDetails.CounterID\n INNER JOIN DisplayToID ON CounterData.GUID = DisplayToID.GUID\n\nWHERE\n CounterName IN ($Counters)\n AND MachineName IN ($Machines)\n AND ISNULL(CounterDetails.InstanceName,'-') IN ($Instance)\n\nGROUP BY MachineName\n        ,ISNULL(CounterDetails.InstanceName,'-')\n        ,CounterName\n        ,CONVERT(DATETIME,ROUND(CAST(CAST(CONVERT(VARCHAR,CONVERT(VARCHAR(19), CounterDateTime),121) AS DATETIME) AS FLOAT) * (1440/($__interval_ms/60000)),0)/(1440/($__interval_ms/60000)))\n\nORDER BY CONVERT(DATETIME,ROUND(CAST(CAST(CONVERT(VARCHAR,CONVERT(VARCHAR(19), CounterDateTime),121) AS DATETIME) AS FLOAT) * (1440/($__interval_ms/60000)),0)/(1440/($__interval_ms/60000)))\n \n\n\n\n",
           "refId": "A"
         }
       ],
       "title": "Metriky",
+      "transformations": [],
       "transparent": true,
       "type": "timeseries"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -141,6 +144,13 @@
       },
       "id": 6,
       "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": [
           {
@@ -149,12 +159,16 @@
           }
         ]
       },
-      "pluginVersion": "8.2.2",
+      "pluginVersion": "8.3.6",
       "targets": [
         {
           "alias": "",
+          "datasource": {
+            "type": "mssql",
+            "uid": "YT59LVBnk"
+          },
           "format": "table",
-          "rawSql": "USE PerfmonCollector\n\nSELECT\n  MachineName\n ,ISNULL(CounterDetails.InstanceName,'-')\n ,CounterName\n ,AVG(CounterData.CounterValue) AS 'avg'\n ,MAX(CounterData.CounterValue) AS 'max'\n\nFROM CounterData\n INNER JOIN CounterDetails ON CounterData.CounterID = CounterDetails.CounterID\n INNER JOIN DisplayToID ON CounterData.GUID = DisplayToID.GUID\n\nWHERE\n CounterName IN ($Counters)\n AND MachineName IN ($Machines)\n AND ISNULL(CounterDetails.InstanceName,'-') IN ($Instance)\n AND (\n  DATEDIFF(s, '1970-01-01 00:00:00',CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))) >= $__unixEpochFrom()\n  AND\n  DATEDIFF(s, '1970-01-01 00:00:00',CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))) <= $__unixEpochTo() \n )\n\nGROUP BY MachineName,InstanceName,CounterName\n\n\n \n\n\n\n",
+          "rawSql": "USE perf\n\nSELECT\n  MachineName\n ,ISNULL(CounterDetails.InstanceName,'-')\n ,CounterName\n ,AVG(CounterData.CounterValue) AS 'avg'\n ,MAX(CounterData.CounterValue) AS 'max'\n\nFROM CounterData\n INNER JOIN CounterDetails ON CounterData.CounterID = CounterDetails.CounterID\n INNER JOIN DisplayToID ON CounterData.GUID = DisplayToID.GUID\n\nWHERE\n CounterName IN ($Counters)\n AND MachineName IN ($Machines)\n AND ISNULL(CounterDetails.InstanceName,'-') IN ($Instance)\n AND (\n  DATEDIFF(s, '1970-01-01 00:00:00',CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))) >= $__unixEpochFrom()\n  AND\n  DATEDIFF(s, '1970-01-01 00:00:00',CONVERT(DATETIME, CONVERT(VARCHAR(19), CounterDateTime))) <= $__unixEpochTo() \n )\n\nGROUP BY MachineName,InstanceName,CounterName\n\n\n \n\n\n\n",
           "refId": "A"
         }
       ],
@@ -163,61 +177,61 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 31,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
+            "User Connections",
             "% Processor Time"
           ],
           "value": [
+            "User Connections",
             "% Processor Time"
           ]
         },
-        "datasource": null,
-        "definition": "SELECT DISTINCT\n      [CounterName]\n\n  FROM [PerfmonCollector].[dbo].[CounterDetails]",
-        "description": null,
-        "error": null,
+        "definition": "SELECT DISTINCT CounterName  FROM CounterDetails",
         "hide": 0,
         "includeAll": false,
-        "label": null,
         "multi": true,
         "name": "Counters",
         "options": [],
-        "query": "SELECT DISTINCT\n      [CounterName]\n\n  FROM [PerfmonCollector].[dbo].[CounterDetails]",
+        "query": "SELECT DISTINCT CounterName  FROM CounterDetails",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 1,
+        "sort": 0,
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
+            "\\\\KSGRDS",
+            "\\\\KSGRDS01",
+            "\\\\KSGRDS02",
+            "\\\\KSGRDS03",
             "\\\\KSGSQL"
           ],
           "value": [
+            "\\\\KSGRDS",
+            "\\\\KSGRDS01",
+            "\\\\KSGRDS02",
+            "\\\\KSGRDS03",
             "\\\\KSGSQL"
           ]
         },
-        "datasource": null,
-        "definition": "SELECT DISTINCT\n      [MachineName]\n\n  FROM [PerfmonCollector].[dbo].[CounterDetails]",
-        "description": null,
-        "error": null,
+        "definition": "SELECT DISTINCT\n      [MachineName]\n\n  FROM [perf].[dbo].[CounterDetails]",
         "hide": 0,
         "includeAll": false,
-        "label": null,
         "multi": true,
         "name": "Machines",
         "options": [],
-        "query": "SELECT DISTINCT\n      [MachineName]\n\n  FROM [PerfmonCollector].[dbo].[CounterDetails]",
+        "query": "SELECT DISTINCT\n      [MachineName]\n\n  FROM [perf].[dbo].[CounterDetails]",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -225,29 +239,22 @@
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
           "selected": true,
           "text": [
-            "-",
             "_Total"
           ],
           "value": [
-            "-",
             "_Total"
           ]
         },
-        "datasource": null,
-        "definition": "SELECT \n    DISTINCT\n      [InstanceName]\n\nFROM [PerfmonCollector].[dbo].[CounterDetails]\nWHERE \nCounterName IN ($Counters)\nAND \nMachineName In ($Machines)\nUNION\nSELECT '-'",
-        "description": null,
-        "error": null,
+        "definition": "SELECT \n    DISTINCT\n      [InstanceName]\n\nFROM [perf].[dbo].[CounterDetails]\nWHERE \nCounterName IN ($Counters)\nAND \nMachineName In ($Machines)\nUNION\nSELECT '-'",
         "hide": 0,
         "includeAll": false,
-        "label": null,
         "multi": true,
         "name": "Instance",
         "options": [],
-        "query": "SELECT \n    DISTINCT\n      [InstanceName]\n\nFROM [PerfmonCollector].[dbo].[CounterDetails]\nWHERE \nCounterName IN ($Counters)\nAND \nMachineName In ($Machines)\nUNION\nSELECT '-'",
+        "query": "SELECT \n    DISTINCT\n      [InstanceName]\n\nFROM [perf].[dbo].[CounterDetails]\nWHERE \nCounterName IN ($Counters)\nAND \nMachineName In ($Machines)\nUNION\nSELECT '-'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -257,12 +264,13 @@
     ]
   },
   "time": {
-    "from": "2021-10-27T09:30:48.000Z",
-    "to": "2021-10-27T11:00:10.000Z"
+    "from": "2022-01-30T23:00:00.000Z",
+    "to": "2022-02-14T22:59:59.000Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Performance DB",
   "uid": "nFlqpWK7z",
-  "version": 20
+  "version": 10,
+  "weekStart": ""
 }
