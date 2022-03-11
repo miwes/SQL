@@ -66,16 +66,20 @@ CROSS APPLY sys.dm_os_volume_stats(mf.database_id, mf.FILE_ID) dovs
 ORDER BY FreeSpaceInMB ASC
 
 -------------------------------------
--- Chyby v errorlogu pro server
+-- Chyby v errorlogu pro server za posledni mesic
 -------------------------------------
-EXEC sp_readerrorlog 0, 1, 'error'
-EXEC sp_readerrorlog 0, 1, 'failed'
+DECLARE @StartTime AS DATETIME
+SELECT @StartTime = DATEADD(month,-1,GETDATE())
+EXEC xp_readerrorlog 0, 1, N'error',N'',@StartTime, NULL,N'desc'
+EXEC xp_readerrorlog 0, 1, N'failed',N'',@StartTime, NULL,N'desc'
 
 -------------------------------------
--- Chyby v errorlogu pro agenta
+-- Chyby v errorlogu pro agenta za posledni mesic
 -------------------------------------
-EXEC sp_readerrorlog 0, 2, 'error'
-EXEC sp_readerrorlog 0, 2, 'failed'
+DECLARE @StartTime AS DATETIME
+SELECT @StartTime = DATEADD(month,-1,GETDATE())
+EXEC xp_readerrorlog 0, 2, N'error',N'',@StartTime, NULL,N'desc'
+EXEC xp_readerrorlog 0, 2, N'failed',N'',@StartTime, NULL,N'desc'
 
 -------------------------------------
 -- Chyby v SQL jobech
