@@ -51,8 +51,15 @@ EXEC sp_msforeachdb
 SELECT 
 	* 
 FROM @freeSpace
-WHERE FreeSpacePercent < 10
+WHERE [Type] = 'DATA'
 ORDER BY FreeSpacePercent
+
+SELECT 
+	* 
+FROM @freeSpace
+WHERE [Type] = 'LOG'
+ORDER BY  FreeSpacePercent
+
 
 -------------------------------------
 -- Volne misto na diskach
@@ -66,7 +73,7 @@ CROSS APPLY sys.dm_os_volume_stats(mf.database_id, mf.FILE_ID) dovs
 ORDER BY FreeSpaceInMB ASC
 
 -------------------------------------
--- Chyby v errorlogu pro server za posledni mesic
+-- Chyby v errorlogu pro server
 -------------------------------------
 DECLARE @StartTime AS DATETIME
 SELECT @StartTime = DATEADD(month,-1,GETDATE())
@@ -74,7 +81,7 @@ EXEC xp_readerrorlog 0, 1, N'error',N'',@StartTime, NULL,N'desc'
 EXEC xp_readerrorlog 0, 1, N'failed',N'',@StartTime, NULL,N'desc'
 
 -------------------------------------
--- Chyby v errorlogu pro agenta za posledni mesic
+-- Chyby v errorlogu pro agenta
 -------------------------------------
 DECLARE @StartTime AS DATETIME
 SELECT @StartTime = DATEADD(month,-1,GETDATE())
