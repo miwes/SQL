@@ -36,6 +36,7 @@ Relog -f SQL vstupnisoubor.blg -o SQL:ACPerf!PopoisImportuDat -t 5
 4. Spusteni sbirani dat
 -------------------------------------------------------------------------------------------------------------------------
 TYPEPERF -f SQL -cf C:\CounterCollect\Counters.txt -si 15 -o SQL:PerfmonSQL!data1 -sc 4
+TYPEPERF -f bin -cf C:\ac\Counters.txt -si 5 -o data.blg -sc 2880
 
 -f  : vystupni format
 -cf : soubor s performance countery
