@@ -1,0 +1,12 @@
+SELECT
+    DB_NAME (MF.database_id) as [Database Name]
+    ,MF.name as [Database File Name]
+    ,[Type] = CASE WHEN Type_Desc = 'ROWS' THEN 'Data File(s)'
+            WHEN Type_Desc = 'LOG'  THEN 'Log File(s)'
+            ELSE Type_Desc END
+    ,size*8/1024 as 'Size (MB)'
+    ,physical_name as [Database_File_Location]
+	,SUSER_SNAME( owner_sid ) AS Owner
+FROM sys.master_files AS MF
+LEFT JOIN sys.databases AS D ON D.database_id = MF.database_id
+ORDER BY 1,3
