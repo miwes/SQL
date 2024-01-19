@@ -9,4 +9,5 @@ SELECT
 	,SUSER_SNAME( owner_sid ) AS Owner
 FROM sys.master_files AS MF
 LEFT JOIN sys.databases AS D ON D.database_id = MF.database_id
+WHERE MF.database_id > 5
 ORDER BY 1,3
