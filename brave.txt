@@ -1,4 +1,8 @@
-||fb.*^$document
-||facebook.*^$document
-||instagram.com^$document
-||threads.net^$document
+||fb.*^$important,third-party
+||facebook.*^$important,third-party
+||instagram.com^$important,third-party
+||threads.net^$important,third-party
+
+||fbcdn.*^$important,third-party
+||fbsbx.*^$important,third-party
+||atdmt.com^$important,third-party
