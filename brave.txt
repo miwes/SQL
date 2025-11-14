@@ -1,0 +1,4 @@
+||fb.*^$document
+||facebook.*^$document
+||instagram.com^$document
+||threads.net^$document
